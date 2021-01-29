@@ -68,6 +68,7 @@ struct seed_item
 
 /********************************************************************/
 /*   Variables */
+bool fastMode = 1;                          //If enabled, contor propagation will be done wothout seed set
 vector <GridCell> GlobalGridCells;          //list of all grid cells in the dataset
 vector <float> isolist;                     //list of iso values for which seed set will be calculated
 int isolist_len;
@@ -75,7 +76,7 @@ vector <iso_list_item> cells_of_iso[102];   //list of index of grid cells per is
 vector <seed_item> seeds_of_iso[102];             //seed set per iso value
 int GlobalCells_x, GlobalCells_y, GlobalCells_z;
 float normalize_scale = 1;                  //normalize points to a box from -1 to 1 on all axes
-string dataFile;                          //Dataset Used
+string dataFile;                            //Dataset Used
 string configFile;
 string seedFile;
 char spacing[100];
@@ -1040,6 +1041,29 @@ int propagate_contours(float iso)
 }
 
 
+int propagate_contours_fast(float iso)
+{
+	int iso_index = 0;
+	Vertices.clear();
+	Colors.clear();
+	Normals.clear();
+	for(int i=0;i<isolist_len;i++)
+	{
+		//cout<<i<<"\t: "<<isolist[i]<<' '<<cells_of_iso[i].size()<<endl;
+		float diff = ABS(isolist[i]-iso_value);
+		if(diff<=0.00001) iso_index=i;
+	}
+
+	cout<<"iso_index = "<<iso_index<<endl;
+	for(unsigned int i=0;i<cells_of_iso[iso_index].size();i++)
+	{
+		int cellid = cells_of_iso[iso_index][i].cell_id;
+		Polygonise(GlobalGridCells[cellid],iso_value);
+	}
+	return cells_of_iso[iso_index].size();
+}
+
+
 /* post: compute frames per second and display in window's title bar */
 void computeFPS() {
 	static int frameCount = 0;
@@ -1095,10 +1119,25 @@ void run_preprocessing()
 	isolist_len = isolist.size();
 	sort(isolist.begin(), isolist.begin()+isolist_len);
 	
-	if(!file_exists(seedFile.c_str()))
+	if(fastMode == 1)
+	{
+		cout<<"\nStarting to identify grid cells for every iso value\n";
+		for(unsigned int i=0; i<GlobalGridCells.size();i++)
+		{
+			for(int j=0;j<isolist_len;j++)
+			{
+				if(isolist[j]>GlobalGridCells[i].max_iso) break;
+				if(isolist[j]<GlobalGridCells[i].min_iso) continue;
+				int parent_val = cells_of_iso[j].size();
+				cells_of_iso[j].push_back(iso_list_item(i, parent_val));
+				//pbs++;
+			}
+		}
+	}
+	else if(!file_exists(seedFile.c_str()) && fastMode == 0)
 	{
 		cout<<"\nSeed file not found.. Starting to extract seed cells\n";
-		unsigned long long pbs = 0;
+		//unsigned long long pbs = 0;
 		for(unsigned int i=0; i<GlobalGridCells.size();i++)
 		{	
 			for(int j=0;j<isolist_len;j++)
@@ -1107,7 +1146,7 @@ void run_preprocessing()
 				if(isolist[j]<GlobalGridCells[i].min_iso) continue;
 				int parent_val = cells_of_iso[j].size();
 				cells_of_iso[j].push_back(iso_list_item(i, parent_val));
-				pbs++;
+				//pbs++;
 			}
 		}
 		std::chrono::steady_clock::time_point time_now = std::chrono::steady_clock::now();
@@ -1145,7 +1184,9 @@ static void CreateVertexBuffer() {
 	run_preprocessing();
 	
 	cout<<"\nPropagating contours for iso value: "<<iso_value<<endl;
-	int contur_cells = propagate_contours(iso_value);
+	int contur_cells;
+	if(fastMode == 0) contur_cells = propagate_contours(iso_value);
+	else contur_cells = propagate_contours_fast(iso_value);
 	cout<<"Extracted contours from "<<contur_cells<<" cells\n";
 	std::chrono::steady_clock::time_point time_now = std::chrono::steady_clock::now();
     cout << "Time = " << std::chrono::duration_cast<std::chrono::seconds>(time_now - begin).count() << "[s], ";
@@ -1546,7 +1587,8 @@ static void onAlphaNumericKeyPress(unsigned char key, int x, int y) {
     {
         // enter key
         iso_value=stof(iso_input[iso_input.size()-1]);
-        propagate_contours(iso_value);	
+        if(fastMode==0) propagate_contours(iso_value);
+        else propagate_contours_fast(iso_value);
 	vrtxCount = Vertices.size();
 	cout<<"VERTEX COUNT IS:" <<vrtxCount<<endl;
         glDeleteBuffers(1, &VBO);
@@ -1646,11 +1688,16 @@ int main(int argc, char** argv) {
 //	cin>>iso_value;
 //	cout<<"Displaying object at scalar value "<<iso_value<<endl;
 	
-	if (argc != 2) {
+	if ((argc != 2 && argc != 3)||(argc == 3 && strcmp(argv[2], "seed_mode")))
+	{
         std::cerr << "Usage: " << argv[0] << " <inputfile(.raw part excluded)>" << std::endl;
+        std::cerr << "OR\n";
+        std::cerr << "Usage: " << argv[0] << " <inputfile(.raw part excluded)> seed_mode" << std::endl;
         return 1;
     }
     
+    if(argc == 3) fastMode=0;
+
     dataFile = argv[1];
     dataFile += ".raw";
     configFile = argv[1];
