@@ -615,9 +615,9 @@ void Polygonise(GridCell grid, double isolevel)
 		Vertices.push_back(vertlist[triTable[cubeindex][i  ]]);
 		Vertices.push_back(vertlist[triTable[cubeindex][i+1]]);
 		Vertices.push_back(vertlist[triTable[cubeindex][i+2]]);
-		Colors.push_back(Vector4f(0.5,0.5,0.5,1));
-		Colors.push_back(Vector4f(0.5,0.5,0.5,1));
-		Colors.push_back(Vector4f(0.5,0.5,0.5,1));
+		Colors.push_back(Vector4f(1.0,0.7,0.8,1));
+		Colors.push_back(Vector4f(1.0,0.7,0.8,1));
+		Colors.push_back(Vector4f(1.0,0.7,0.8,1));
 		Vector3f face_norm1 = get_normal(vertlist[triTable[cubeindex][i]], vertlist[triTable[cubeindex][i+1]], vertlist[triTable[cubeindex][i+2]]);
 		Normals.push_back(face_norm1);
 		Normals.push_back(face_norm1);
