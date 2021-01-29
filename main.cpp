@@ -744,14 +744,14 @@ void readRawFile(){
         //open the raw file to read it's contents
         infile.open(dataFile, ios::binary | ios::in) ;
         char *datac = NULL;
-        int *datai = NULL;
+        short *datai = NULL;
         if(format[0] == "uint8") {
         	datac = new char[size];
         	infile.read(datac, size);
         }
         else if(format[0] == "uint16")
         {
-        	datai = new int[size];
+        	datai = new short[size];
     	    infile.read((char *)datai, size);
         }
         else
@@ -789,7 +789,8 @@ void readRawFile(){
 			if(dp < 0) dp += 65536;
 		}
 		GlobalVertices.push_back(Vector3f(p, q, r));
-		GlobalScalars.push_back((float)dp/256);
+		if(format[0] == "uint8") GlobalScalars.push_back((float)dp/256);
+		else if(format[0] == "uint16") {GlobalScalars.push_back((float)dp/4096);}
 		i++;
 	}
 	normalizeVertices();
@@ -1455,7 +1456,7 @@ static void onDisplay() {
 	char o_Y[o+1];
 	strcpy(n_X, mouse_X.c_str());		
 	strcpy(o_Y, iso_val.c_str());
-	drawBitmapText("X:", -0.68,0.96); 
+	drawBitmapText("CAMERA_POSITION:", -0.68,0.96);
 	drawBitmapText(n_X, -0.64, 0.96);
 	drawBitmapText("RENDERING AT ISOVALUE:", -0.99,0.91); 
 	drawBitmapText(o_Y, -0.58,0.91); 
