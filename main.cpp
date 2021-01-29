@@ -1536,7 +1536,7 @@ static void onMouseMotion(int x, int y) {
 	//cout<<scrollBarEndx<<' '<<scrollBarEndy<<endl;
 	if (mouseposx < scrollBarEndx && mouseposy>scrollBarEndy)
 	{
-	  /*  if(mouseposx<=-0.7 && mouseposx>=-0.99 && mouseposy<=0.99 && mouseposy>=0.95 )*/{
+	  /*  if(mouseposx<=-0.7 && mouseposx>=-0.99 && mouseposy<=0.99 && mouseposy>=0.95 )*/
 		scrollVertices11[10].x = mouseposx;
 		scrollVertices11[12].x = mouseposx;
 		scrollVertices11[13].x = mouseposx;
@@ -1549,20 +1549,22 @@ static void onMouseMotion(int x, int y) {
 		glEnableVertexAttribArray(posID2);
 		glVertexAttribPointer(posID2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindVertexArray(0);
-		}
 	}
-	int diffx = x - globalx;
-	int diffy = y - globaly;
-	if(diffx>=10 || diffy >=10)
+	else
 	{
-		diffx = 0;
-		diffy = 0;
+		int diffx = x - globalx;
+		int diffy = y - globaly;
+		if(diffx>=10 || diffy >=10)
+		{
+			diffx = 0;
+			diffy = 0;
+		}
+		//cout<<diffx<<' '<<diffy<<endl;
+		globalx = x;
+		globaly = y;
+		yrotation += diffx;
+		xrotation += diffy;
 	}
-	//cout<<diffx<<' '<<diffy<<endl;
-	globalx = x;
-	globaly = y;
-	yrotation += diffx;
-	xrotation += diffy;
 	glutPostRedisplay();
 }
 
@@ -1595,10 +1597,10 @@ static void onAlphaNumericKeyPress(unsigned char key, int x, int y) {
         cout << "Contour Extraction time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms], ";
 		vrtxCount = Vertices.size();
 		cout<<"VERTEX COUNT IS:" <<vrtxCount<<endl;
-        glDeleteBuffers(1, &VBO);
+        //glDeleteBuffers(1, &VBO);
 //	glGenVertexArray(1, &VAO);
 	glBindVertexArray(VAO);
-	glGenBuffers(1, &VBO);
+	//glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER,vrtxCount*(sizeof(Vector3f)+sizeof(Vector3f)+sizeof(Vector4f)),NULL,GL_STATIC_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vrtxCount*sizeof(Vector3f), &Vertices[0]);
