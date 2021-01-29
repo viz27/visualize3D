@@ -21,18 +21,9 @@
 #include "file_utils.h"
 #include "math_utils.h"
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
-//#define MAX_POLYS 1000000
+using namespace std;
 
-vector<string> split (const string &s, char delim) {
-    vector<string> result;
-    stringstream ss (s);
-    string item;
-    
-    while (getline (ss, item, delim)) {
-		result.push_back (item);
-    }
-    return result;
-}
+
 struct GridCell
 {
 	int p[8];
@@ -50,6 +41,7 @@ struct GridCell
 	}
 };
 
+
 struct iso_list_item
 {
 	int cell_id;
@@ -61,6 +53,7 @@ struct iso_list_item
 	}
 };
 
+
 struct seed_item
 {
 	int cell_id;
@@ -71,6 +64,7 @@ struct seed_item
 		count = b;
 	}
 };
+
 
 /********************************************************************/
 /*   Variables */
@@ -116,6 +110,8 @@ float scrollBarEndx = -1;
 float scrollBarEndy = 1;
 int globalx=0, globaly=0;
 float cameraPosy = 2.0;
+
+
 /********************************************************************
   Utility functions
  */
@@ -145,6 +141,8 @@ void generateScrollbar(float xleft, float xright, float ytop, float ybottom, flo
 	scrollVrtxCount = vc;
 
 }
+
+
 void generateScrollbar3(float xleft, float xright, float ytop, float ybottom, float scrollFillGap, float s10, float s12, float s13, float vc)
 {
 	if (xright > scrollBarEndx) {scrollBarEndx = xright;}
@@ -170,19 +168,39 @@ void generateScrollbar3(float xleft, float xright, float ytop, float ybottom, fl
 	scrollVrtxCount = vc; 
 
 }
+
+
+vector<string> split (const string &s, char delim) {
+    vector<string> result;
+    stringstream ss (s);
+    string item;
+    
+    while (getline (ss, item, delim)) {
+		result.push_back (item);
+    }
+    return result;
+}
+
+
 float dot(Vector3f a, Vector3f b)
 {
 	return a.x*b.x+a.y*b.y+a.z*b.z;
 }
+
+
 double ABS(double x)
 {
 	if(x<0) return -x;
 	return x;
 }
+
+
 bool file_exists(const char *filename) {
   std::ifstream ifile(filename);
   return (bool)ifile;
 }
+
+
 Vector3f get_normal(Vector3f x1, Vector3f x2, Vector3f x3)
 {
 	Vector3f planeNormal;
@@ -193,6 +211,7 @@ Vector3f get_normal(Vector3f x1, Vector3f x2, Vector3f x3)
     planeNormal.z = a.x*b.y-a.y*b.x;
     return planeNormal;
 }
+
 
 void normalizeVertices()
 {
@@ -237,6 +256,7 @@ void normalizeVertices()
 	}
 }
 
+
 Vector3f VertexInterp(double isolevel, int vert1, int vert2, double valp1, double valp2)
 {
    double mu;
@@ -257,6 +277,8 @@ Vector3f VertexInterp(double isolevel, int vert1, int vert2, double valp1, doubl
 
    return p ;
 }
+
+
 void Polygonise(GridCell grid, double isolevel)
 {
 	int i;
@@ -670,6 +692,7 @@ void writeSeedFile() {
 	return;
 }
 
+
 int readSeedFile() {
 	FILE * input;
 	int ret = 0;
@@ -800,6 +823,8 @@ bool vertexeq(Vector3f a, Vector3f b)
 	if (a.z!=b.z) return 0;
 	return 1;
 }
+
+
 int get_cell_index(int j, int id)
 {
 	int left, right, mid, mid_cell_id;
@@ -945,6 +970,8 @@ void generate_seed_set()
 		cout<<seeds_of_iso[9][j].cell_id<<" : "<<seeds_of_iso[9][j].count<<endl;
 	}
 }
+
+
 int BFS(int cellid, float extract_iso)
 {
 	int total_cells = 0;
@@ -985,6 +1012,8 @@ int BFS(int cellid, float extract_iso)
     //cout<<"Returning "<<total_cells<<" cells\n\n";
     return total_cells;
 }
+
+
 int propagate_contours(float iso)
 {
 	int iso_index = 0;
@@ -1009,6 +1038,8 @@ int propagate_contours(float iso)
 	}
 	return total_cells;
 }
+
+
 /* post: compute frames per second and display in window's title bar */
 void computeFPS() {
 	static int frameCount = 0;
@@ -1029,6 +1060,7 @@ void computeFPS() {
 		frameCount = 0;
 	}
 }
+
 
 void run_preprocessing()
 {
@@ -1102,6 +1134,8 @@ void run_preprocessing()
 		}
 	}
 }
+
+
 static void CreateVertexBuffer() {
 	glGenVertexArrays(1, &VAO);
 	//cout << "VAO: " << VAO << endl;
@@ -1195,7 +1229,6 @@ static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum Shad
 	glAttachShader(ShaderProgram, ShaderObj);
 }
 
-using namespace std;
 
 static void CompileShaders(int type) {
 	GLuint ShaderProgram = glCreateProgram();
@@ -1306,6 +1339,7 @@ static void CompileShaders(int type) {
 	}
 }
 
+
 /********************************************************************
  Callback Functions
  These functions are registered with the glut window and called 
@@ -1332,6 +1366,7 @@ void drawBitmapText(string s,float x,float y)
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, *c);
 	}
 }
+
 
 vector< string > iso_input(1);
 static void onDisplay() {
@@ -1414,6 +1449,7 @@ static void onDisplay() {
 	/*cout<<"end of display"<<endl;*/
 }
 
+
 /* pre:  glut window has been resized
  */
 static void onReshape(int width, int height) {
@@ -1424,6 +1460,8 @@ static void onReshape(int width, int height) {
 	}
 	// update scene based on new aspect ratio....
 }
+
+
 /* pre:  glut window is not doing anything else
    post: scene is updated and re-rendered if necessary */
 static void onIdle() {
@@ -1443,6 +1481,8 @@ static void onIdle() {
 	 	}
 	}	
 }
+
+
 /* pre:  mouse is dragged (i.e., moved while button is pressed) within glut window
    post: scene is updated and re-rendered  */
 static void onMouseMotion(int x, int y) {
@@ -1483,6 +1523,8 @@ static void onMouseMotion(int x, int y) {
 	xrotation += diffy;
 	glutPostRedisplay();
 }
+
+
 /* pre:  mouse button has been pressed while within glut window
    post: scene is updated and re-rendered */
 static void onMouseButtonPress(int button, int state, int x, int y) {
@@ -1495,6 +1537,8 @@ static void onMouseButtonPress(int button, int state, int x, int y) {
 	/* notify window that it has to be re-rendered */
 	glutPostRedisplay();
 }
+
+
 /* pre:  key has been pressed
    post: scene is updated and re-rendered */
 static void onAlphaNumericKeyPress(unsigned char key, int x, int y) {
@@ -1543,6 +1587,7 @@ static void onAlphaNumericKeyPress(unsigned char key, int x, int y) {
 	glutPostRedisplay();
 }
 
+
 /* pre:  arrow or function key has been pressed
    post: scene is updated and re-rendered */
 static void onSpecialKeyPress(int key, int x, int y) {
@@ -1565,6 +1610,7 @@ static void onSpecialKeyPress(int key, int x, int y) {
 	glutPostRedisplay();
 }
 
+
 /* pre:  glut window has just been iconified or restored 
    post: if window is visible, animate model, otherwise don't bother */
 static void onVisible(int state) {
@@ -1575,6 +1621,7 @@ static void onVisible(int state) {
 		glutIdleFunc(NULL);
 	}
 }
+
 
 static void InitializeGlutCallbacks() {
 	/* tell glut how to display model */
@@ -1592,6 +1639,8 @@ static void InitializeGlutCallbacks() {
 	glutMotionFunc(onMouseMotion);
 	glutMouseFunc(onMouseButtonPress);
 }
+
+
 int main(int argc, char** argv) {
 //	cout<<"Enter scalar value(0 to 1 expected): ";
 //	cin>>iso_value;
