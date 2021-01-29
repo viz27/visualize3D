@@ -1588,10 +1588,13 @@ static void onAlphaNumericKeyPress(unsigned char key, int x, int y) {
     {
         // enter key
         iso_value=stof(iso_input[iso_input.size()-1]);
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         if(fastMode==0) propagate_contours(iso_value);
         else propagate_contours_fast(iso_value);
-	vrtxCount = Vertices.size();
-	cout<<"VERTEX COUNT IS:" <<vrtxCount<<endl;
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        cout << "Contour Extraction time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms], ";
+		vrtxCount = Vertices.size();
+		cout<<"VERTEX COUNT IS:" <<vrtxCount<<endl;
         glDeleteBuffers(1, &VBO);
 //	glGenVertexArray(1, &VAO);
 	glBindVertexArray(VAO);
