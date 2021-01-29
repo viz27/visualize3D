@@ -109,18 +109,21 @@ int vrtxCount, scrollVrtxCount;
 GLuint ShaderProgram1, ShaderProgram2, ShaderProgram3;
 float scrollBarEndx = -1;
 float scrollBarEndy = 1;
+float scrollBarStartx = 1;
+float scrollFillGap = 0.005;
 int globalx=0, globaly=0;
-float cameraPosy = 2.0;
+float cameraPosy = 3.0;
 
 
 /********************************************************************
   Utility functions
  */
 vector<Vector3f> scrollVertices11, scrollVertices12, scrollVertices13;
-void generateScrollbar(float xleft, float xright, float ytop, float ybottom, float scrollFillGap, float s10, float s12, float s13, float vc)
+void generateScrollbar(float xleft, float xright, float ytop, float ybottom, float s10, float s12, float s13, float vc)
 {
 	if (xright > scrollBarEndx) {scrollBarEndx = xright;}
 	if (ybottom < scrollBarEndy) {scrollBarEndy = ybottom;}
+	scrollBarStartx = xleft+scrollFillGap;
 	scrollVertices11.push_back(Vector3f(xleft, ytop, -1));
 	scrollVertices11.push_back(Vector3f(xright, ytop, -1));
 	scrollVertices11.push_back(Vector3f(xright, ytop, -1));
@@ -140,33 +143,6 @@ void generateScrollbar(float xleft, float xright, float ytop, float ybottom, flo
 	scrollVertices11[12].x = s12;
 	scrollVertices11[13].x = s13;
 	scrollVrtxCount = vc;
-
-}
-
-
-void generateScrollbar3(float xleft, float xright, float ytop, float ybottom, float scrollFillGap, float s10, float s12, float s13, float vc)
-{
-	if (xright > scrollBarEndx) {scrollBarEndx = xright;}
-	if (ybottom < scrollBarEndy) {scrollBarEndy = ybottom;}
-	scrollVertices13.push_back(Vector3f(xleft, ytop, -1));
-	scrollVertices13.push_back(Vector3f(xright, ytop, -1));
-	scrollVertices13.push_back(Vector3f(xright, ytop, -1));
-	scrollVertices13.push_back(Vector3f(xright, ybottom, -1));
-	scrollVertices13.push_back(Vector3f(xright, ybottom, -1));
-	scrollVertices13.push_back(Vector3f(xleft, ybottom, -1));
-	scrollVertices13.push_back(Vector3f(xleft, ybottom, -1));
-	scrollVertices13.push_back(Vector3f(xleft, ytop, -1));
-	
-	scrollVertices13.push_back(Vector3f(xleft+scrollFillGap, ytop-scrollFillGap, -1));
-	scrollVertices13.push_back(Vector3f(xleft+scrollFillGap, ybottom+scrollFillGap, -1));
-	scrollVertices13.push_back(Vector3f(xleft+2*scrollFillGap, ytop-scrollFillGap, -1));
-	scrollVertices13.push_back(Vector3f(xleft+scrollFillGap, ybottom+scrollFillGap, -1));
-	scrollVertices13.push_back(Vector3f(xleft+2*scrollFillGap, ytop-scrollFillGap, -1));
-	scrollVertices13.push_back(Vector3f(xleft+2*scrollFillGap, ybottom+scrollFillGap, -1));
-	scrollVertices13[10].x = s10;
-	scrollVertices13[12].x = s12;
-	scrollVertices13[13].x = s13;
-	scrollVrtxCount = vc; 
 
 }
 
@@ -1225,7 +1201,7 @@ static void CreateVertexBuffer2() {
 	glGenBuffers(1, &VBO2);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
 	
-	generateScrollbar(-0.99, -0.7, 0.99, 0.95, 0.005, -0.8, -0.8, -0.8, 14);
+	generateScrollbar(-0.99, -0.7, 0.99, 0.95, -0.8, -0.8, -0.8, 14);
 //	generateScrollbar(-0.7, -0.5, 0.99, 0.9, 0.005, -0.8, -0.8, -0.8, 14);
 	
 	glBufferData(GL_ARRAY_BUFFER, scrollVrtxCount*(sizeof(Vector3f)), NULL, GL_STATIC_DRAW);
@@ -1532,14 +1508,15 @@ static void onMouseMotion(int x, int y) {
 	//cout<<"Absolute:"<<x<<' '<<y<<endl;
 	mouseposx = ((float)x*2/theWindowWidth) - 1;
 	mouseposy = 1 - ((float)y*2/theWindowHeight);
+	if(mouseposx<-1 || mouseposx>1 || mouseposy<-1 || mouseposy>1) return;
 	//cout<<"Window:"<<mouseposx<<' '<<mouseposy<<endl;
 	//cout<<scrollBarEndx<<' '<<scrollBarEndy<<endl;
-	if (mouseposx < scrollBarEndx && mouseposy>scrollBarEndy)
+	if (mouseposx >= scrollBarStartx && mouseposx <= scrollBarEndx && mouseposy>=scrollBarEndy)
 	{
 	    /*  if(mouseposx<=-0.7 && mouseposx>=-0.99 && mouseposy<=0.99 && mouseposy>=0.95 )*/
-		scrollVertices11[10].x = mouseposx;
-		scrollVertices11[12].x = mouseposx;
-		scrollVertices11[13].x = mouseposx;
+		scrollVertices11[10].x = mouseposx-scrollFillGap;
+		scrollVertices11[12].x = mouseposx-scrollFillGap;
+		scrollVertices11[13].x = mouseposx-scrollFillGap;
 		cameraPosy = (mouseposx+1)*3/0.3;
 		glBindVertexArray(VAO2);
 		glGenBuffers(1, &VBO2);
