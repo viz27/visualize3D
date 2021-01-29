@@ -1536,7 +1536,7 @@ static void onMouseMotion(int x, int y) {
 	//cout<<scrollBarEndx<<' '<<scrollBarEndy<<endl;
 	if (mouseposx < scrollBarEndx && mouseposy>scrollBarEndy)
 	{
-	  /*  if(mouseposx<=-0.7 && mouseposx>=-0.99 && mouseposy<=0.99 && mouseposy>=0.95 )*/
+	    /*  if(mouseposx<=-0.7 && mouseposx>=-0.99 && mouseposy<=0.99 && mouseposy>=0.95 )*/
 		scrollVertices11[10].x = mouseposx;
 		scrollVertices11[12].x = mouseposx;
 		scrollVertices11[13].x = mouseposx;
@@ -1554,7 +1554,7 @@ static void onMouseMotion(int x, int y) {
 	{
 		int diffx = x - globalx;
 		int diffy = y - globaly;
-		if(diffx>=10 || diffy >=10)
+		if(diffx>=10 || diffy >=10 || diffx<=-10 || diffy <=-10)
 		{
 			diffx = 0;
 			diffy = 0;
