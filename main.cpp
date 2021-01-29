@@ -764,7 +764,8 @@ void readRawFile(){
 			dp = datai[i];
 			if(dp < 0) dp += 65536;
 		}
-		GlobalVertices.push_back(Vector3f(p, q, r));
+		if(dataFile.find("stent_512x512x174_uint16") != string::npos) GlobalVertices.push_back(Vector3f(p, q, r*5));
+		else GlobalVertices.push_back(Vector3f(p, q, r));
 		if(format[0] == "uint8") GlobalScalars.push_back((float)dp/256);
 		else if(format[0] == "uint16") {GlobalScalars.push_back((float)dp/4096);}
 		i++;
@@ -1201,7 +1202,7 @@ static void CreateVertexBuffer2() {
 	glGenBuffers(1, &VBO2);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
 	
-	generateScrollbar(-0.99, -0.7, 0.99, 0.95, -0.8, -0.8, -0.8, 14);
+	generateScrollbar(-0.99, -0.7, 0.99, 0.95, -0.705, -0.705, -0.705, 14);
 //	generateScrollbar(-0.7, -0.5, 0.99, 0.9, 0.005, -0.8, -0.8, -0.8, 14);
 	
 	glBufferData(GL_ARRAY_BUFFER, scrollVrtxCount*(sizeof(Vector3f)), NULL, GL_STATIC_DRAW);
@@ -1378,11 +1379,23 @@ void onInit(int argc, char * argv[])
 }
 void drawBitmapText(string s,float x,float y) 
 { 	const char *c;
-	glRasterPos2f(x, y);
+	glWindowPos2f(x,y);
 	for (c=s.c_str(); *c != '\0'; c++) 
 	{
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, *c);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
 	}
+}
+
+
+float getPixelx(float val)
+{
+	return (val+1)*theWindowWidth/2;
+}
+
+
+float getPixely(float val)
+{
+	return (val+1)*theWindowHeight/2;
 }
 
 
@@ -1421,41 +1434,25 @@ static void onDisplay() {
 	glBindVertexArray(VAO2);
 	glDrawArrays(GL_LINES, 0, 8); //mode, first, count
 	glDrawArrays(GL_TRIANGLES, 8, 6);
-	//glDrawArrays(GL_POINTS, 0, cubeVrtxCount);
 	glBindVertexArray(0);
-	//glDisableVertexAttribArray(0);
 	std::string mouse_X = std::to_string(cameraPosy); 	
 	std::string iso_val = std::to_string(iso_value);
-	int n=mouse_X.length();		
-	int o=iso_val.length();
-	char n_X[n+1];		
-	char o_Y[o+1];
-	strcpy(n_X, mouse_X.c_str());		
-	strcpy(o_Y, iso_val.c_str());
-	drawBitmapText("CAMERA_POSITION:", -0.68,0.96);
-	drawBitmapText(n_X, -0.64, 0.96);
-	drawBitmapText("RENDERING AT ISOVALUE:", -0.99,0.91); 
-	drawBitmapText(o_Y, -0.58,0.91); 
-	drawBitmapText("ENTER ISOVALUE:", -0.99,0.86);
+	string cam_str = "CAMERA_POSITION:";
+	cam_str += mouse_X;
+	string iso_str = "RENDERING AT ISOVALUE:";
+	iso_str += iso_val;
+	drawBitmapText(cam_str.c_str(), getPixelx(-0.68),getPixely(0.96));
+	drawBitmapText(iso_str.c_str(), getPixelx(-0.99),getPixely(0.91)); 
+	drawBitmapText("ENTER ISOVALUE:", getPixelx(-0.99),getPixely(0.86));
 	for( size_t i = 0; i < iso_input.size(); ++i )
-        {
-        	ostringstream oss;
-        	oss << iso_input[i];
-        //	if(i>=1) iso_value=std::stof(iso_input[i]);
-        	//cout<<iso_input[i]<<endl;
-        	//const int fontHeight = glutBitmapHeight( GLUT_BITMAP_TIMES_ROMAN_10 );
-        	glRasterPos2f( -0.68,0.86 );
-        	glutBitmapString( GLUT_BITMAP_TIMES_ROMAN_10, (const unsigned char*)( oss.str().c_str() ) );
-        } 
-	//cout<<iso_value<<"*******"<<endl;
-/*	glUseProgram(ShaderProgram3);
-	glBindVertexArray(VAO3);
-	glDrawArrays(GL_LINES, 0, 8); //mode, first, count
-	glDrawArrays(GL_TRIANGLES, 8, 6);
-	//glDrawArrays(GL_POINTS, 0, cubeVrtxCount);
-	glBindVertexArray(0);   
-	//glDisableVertexAttribArray(0);	
-	// check for any errors when rendering */
+	{
+		ostringstream oss;
+		oss << iso_input[i];
+		string enter_str = "ENTER ISOVALUE:";
+		enter_str += oss.str();
+		drawBitmapText(enter_str.c_str(), getPixelx(-0.99),getPixely(0.86));
+	}
+	glBindVertexArray(0);
 	GLenum errorCode = glGetError();
 	if (errorCode == GL_NO_ERROR) {
 		/* double-buffering - swap the back and front buffers */
@@ -1464,7 +1461,6 @@ static void onDisplay() {
 	} else {
 		fprintf(stderr, "OpenGL rendering error %d\n", errorCode);
 	}
-	/*cout<<"end of display"<<endl;*/
 }
 
 
