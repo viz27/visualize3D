@@ -1,0 +1,38 @@
+Installing OpenGL
+
+Ensure the latest graphics drivers which are appropriate for your platform/OS is installed. For further instructions check https://www.khronos.org/opengl/wiki/Getting_Started#Downloading_OpenGL
+
+Installing glut and GLEW
+
+Linux
+
+install glut/freeglut and GLEW by using the following command in the terminal
+
+sudo apt-get install freeglut3-dev libglew-dev
+
+
+Windows
+
+For Visual Studio setup follow instructions in the following video
+
+https://www.youtube.com/watch?v=8p76pJsUP44
+
+For other IDEs like codeblocks etc the steps will be similar if not the same.
+
+
+Check the setup
+
+Linux
+
+1) sudo apt-get install mesa-utils
+2) check the output of glxinfo to see "direct rendering" is set to "yes".
+3) check OpenGL core version is greater than 3.1
+4) run glxgears, if the gears animation is rendered then the setup is fine.
+
+Run the sample program.
+
+1) Extract the sample program
+2) make
+3) ./sample
+4) the output should be rotating triangle colored red.
+
