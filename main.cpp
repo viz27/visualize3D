@@ -996,6 +996,7 @@ int BFS(int cellid, float extract_iso)
 int propagate_contours(float iso)
 {
 	int iso_index = 0;
+	float mindiff = 10;
 	int total_cells = 0;
 	Vertices.clear();
 	Colors.clear();
@@ -1004,7 +1005,11 @@ int propagate_contours(float iso)
 	{
 		//cout<<i<<"\t: "<<isolist[i]<<' '<<cells_of_iso[i].size()<<endl;
 		float diff = ABS(isolist[i]-iso_value);
-		if(diff<=0.00001) iso_index=i;
+		if(diff < mindiff)
+		{
+			mindiff = diff;
+			iso_index = i;
+		}
 	}
 
 	cout<<"iso_index = "<<iso_index<<endl;
@@ -1022,6 +1027,7 @@ int propagate_contours(float iso)
 int propagate_contours_fast(float iso)
 {
 	int iso_index = 0;
+	float mindiff = 10;
 	Vertices.clear();
 	Colors.clear();
 	Normals.clear();
@@ -1029,7 +1035,11 @@ int propagate_contours_fast(float iso)
 	{
 		//cout<<i<<"\t: "<<isolist[i]<<' '<<cells_of_iso[i].size()<<endl;
 		float diff = ABS(isolist[i]-iso_value);
-		if(diff<=0.00001) iso_index=i;
+		if(diff < mindiff)
+		{
+			mindiff = diff;
+			iso_index = i;
+		}
 	}
 
 	cout<<"iso_index = "<<iso_index<<endl;
